@@ -3,6 +3,7 @@ import { View, StyleSheet, TextInput, Button, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Svg, { Text, Defs, LinearGradient, Stop } from 'react-native-svg';
 import { LinearGradient as ExpoLinearGradient } from 'expo-linear-gradient';
+import axios from 'axios';
 
 const LoginScreen: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -27,6 +28,21 @@ const LoginScreen: React.FC = () => {
       return;
     }
     navigation.navigate('Home', { role });
+  };
+
+  const createUser = async () => {
+    try {
+      const response = await axios.post('http://localhost:8000/api/users', {
+        name: username,
+        email: `${username}@example.com`, // Email'i kullanıcı adıyla türetiyoruz
+        password,
+      });
+      console.log('User created:', response.data);
+      Alert.alert('Başarılı', 'Kullanıcı başarıyla oluşturuldu');
+    } catch (err) {
+      console.error('Error creating user:', err.message);
+      Alert.alert('Hata', 'Kullanıcı oluşturulurken bir hata oluştu');
+    }
   };
 
   return (
@@ -55,6 +71,7 @@ const LoginScreen: React.FC = () => {
           style={styles.input}
         />
         <Button title="Giriş Yap" onPress={handleLogin} color="#800080" />
+        <Button title="Kullanıcı Oluştur" onPress={createUser} color="#008080" />
       </View>
     </ExpoLinearGradient>
   );
