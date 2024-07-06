@@ -6,15 +6,15 @@ import { RNCamera } from 'react-native-camera';
 import { DeviceEventEmitter } from 'react-native';
 
 interface PriceItem {
-  id: string;
+  _id: string;
   name: string;
-  oldPrice: string;
-  newPrice: string;
+  price: number;
+  discountPrice: number;
 }
 
 const PriceScreen = () => {
   const [prices, setPrices] = useState<PriceItem[]>([]);
-  const [productCode, setProductCode] = useState<string>('');
+  const [productId, setProductId] = useState<string>('');
   const [scanning, setScanning] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -23,7 +23,7 @@ const PriceScreen = () => {
       if (intent.action === 'com.zebra.reactnative.ACTION') {
         const scannedData = intent.extras['com.symbol.datawedge.data_string'];
         console.log(`Barkod tarandı: ${scannedData}`);
-        setProductCode(scannedData);
+        setProductId(scannedData);
         searchPrice(scannedData);
       }
     };
@@ -35,8 +35,8 @@ const PriceScreen = () => {
     };
   }, []);
 
-  const searchPrice = async (code: string) => {
-    if (!code) {
+  const searchPrice = async (id: string) => {
+    if (!id) {
       Alert.alert('Uyarı', 'Lütfen bir ürün kodu giriniz');
       console.log('Kullanıcı ürün kodu girmedi.');
       return;
@@ -44,21 +44,21 @@ const PriceScreen = () => {
 
     try {
       setLoading(true);
-      console.log(`Ürün kodu sorgulanıyor: ${code}`);
+      console.log(`Ürün kodu sorgulanıyor: ${id}`);
 
-      // Gerçek API çağrısı
+      // Real API call
       const response = await axios.get(`http://localhost:8000/api/products/search`, {
-        params: { code },
+        params: { id },
       });
-      setPrices(response.data);
-      console.log(`API sorgulama sonucu: ${JSON.stringify(response.data)}`);
 
       if (response.data.length === 0) {
         Alert.alert('Hata', 'Ürün kodu hatalıdır');
-        console.log(`Ürün kodu hatalı: ${code}`);
+        console.log(`Ürün kodu hatalı: ${id}`);
       } else {
+        setPrices(response.data);
+        console.log(`API sorgulama sonucu: ${JSON.stringify(response.data)}`);
         Alert.alert('Başarılı', 'Ürün bulundu');
-        console.log(`Ürün bulundu: ${code}`);
+        console.log(`Ürün bulundu: ${id}`);
       }
     } catch (error) {
       console.error('Fiyat sorgulama hatası:', error);
@@ -72,7 +72,7 @@ const PriceScreen = () => {
   const handleBarCodeScanned = ({ data }: { data: string }) => {
     console.log(`Barkod ile taranan ürün kodu: ${data}`);
     setScanning(false);
-    setProductCode(data);
+    setProductId(data);
     searchPrice(data);
   };
 
@@ -80,8 +80,8 @@ const PriceScreen = () => {
     <Card style={styles.card}>
       <Card.Content>
         <Title>{item.name}</Title>
-        <Paragraph>Eski Fiyat: {item.oldPrice}</Paragraph>
-        <Paragraph>Yeni Fiyat: {item.newPrice}</Paragraph>
+        <Paragraph>Eski Fiyat: {item.price} TL</Paragraph>
+        <Paragraph>Yeni Fiyat: {item.discountPrice} TL</Paragraph>
       </Card.Content>
     </Card>
   );
@@ -92,12 +92,12 @@ const PriceScreen = () => {
         <TextInput
           style={styles.input}
           placeholder="Ürün kodu giriniz"
-          value={productCode}
-          onChangeText={setProductCode}
+          value={productId}
+          onChangeText={setProductId}
         />
         <Button 
           mode="contained" 
-          onPress={() => searchPrice(productCode)} 
+          onPress={() => searchPrice(productId)} 
           style={styles.button}
         >
           Sorgula
@@ -119,7 +119,7 @@ const PriceScreen = () => {
         {loading && <ActivityIndicator size="large" color="#0000ff" />}
         <FlatList
           data={prices}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item) => item._id.toString()}
           renderItem={renderItem}
         />
       </View>

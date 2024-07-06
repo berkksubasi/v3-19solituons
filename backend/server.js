@@ -1,4 +1,3 @@
-// backend/server.js
 const express = require('express');
 const mongoose = require('mongoose');
 require('dotenv').config();
@@ -10,7 +9,9 @@ app.use(express.json());
 
 // Routes
 const productRoutes = require('./routes/products');
+const inventoryRoutes = require('./routes/inventory');
 app.use('/api/products', productRoutes);
+app.use('/api/inventory', inventoryRoutes);
 
 // MongoDB connection
 const MONGO_URI = process.env.MONGO_URI;

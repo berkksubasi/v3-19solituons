@@ -1,19 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
-const Product = require('../models/Product'); // Import Product model
+const Product = require('../models/Product');
 
-// Get all products
-router.get('/', async (req, res) => {
-    try {
-        const products = await Product.find();
-        res.json(products);
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
-});
-
-// Get product by id
+// Get product by code
 router.get('/search', async (req, res) => {
     const { id } = req.query;
     try {

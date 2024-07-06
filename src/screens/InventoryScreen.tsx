@@ -6,20 +6,14 @@ import { RNCamera } from 'react-native-camera';
 import { DeviceEventEmitter } from 'react-native';
 
 interface InventoryItem {
-  id: number;
+  _id: string;
   name: string;
-  quantity: number;
-  stores: string[];
+  size: string[];
+  color: string[];
+  price: number;
+  discountPrice: number;
+  category: string;
 }
-
-const dummyInventoryData: InventoryItem[] = [
-  { id: 1, name: 'Ürün 1', quantity: 10, stores: ['Şube 1', 'Şube 2'] },
-  { id: 2, name: 'Ürün 2', quantity: 5, stores: ['Şube 2', 'Şube 3'] },
-  { id: 3, name: 'Ürün 3', quantity: 8, stores: ['Şube 3', 'Şube 4'] },
-  { id: 4, name: 'Ürün 4', quantity: 20, stores: ['Şube 4', 'Merkez Depo'] },
-  { id: 5, name: 'Ürün 5', quantity: 15, stores: ['Merkez Depo', 'Şube 5', 'Şube 6', 'Şube 2'] },
-  { id: 6, name: 'Ürün 6', quantity: 3, stores: ['Yedek Depo'] },
-];
 
 const InventoryScreen = () => {
   const [productCode, setProductCode] = useState<string>('');
@@ -44,8 +38,8 @@ const InventoryScreen = () => {
     };
   }, []);
 
-  const searchInventory = async (code: string) => {
-    if (!code) {
+  const searchInventory = async (id: string) => {
+    if (!id) {
       Alert.alert('Uyarı', 'Lütfen bir ürün kodu giriniz');
       console.log('Kullanıcı ürün kodu girmedi.');
       return;
@@ -53,31 +47,22 @@ const InventoryScreen = () => {
 
     try {
       setLoading(true);
-      console.log(`Ürün kodu sorgulanıyor: ${code}`);
-
-      // Dummy data kullanarak sonuçları güncelle
-      const result = dummyInventoryData.filter(item => item.name === code);
-
-      if (result.length === 0) {
-        Alert.alert('Hata', 'Ürün kodu hatalıdır');
-        console.log(`Ürün kodu hatalı: ${code}`);
-      } else if (result[0].stores.length === 0) {
-        Alert.alert('Bilgi', 'Ürün mevcut değildir');
-        console.log(`Ürün mevcut değil: ${code}`);
-      } else {
-        console.log(`Ürün bulundu: ${code}`);
-      }
-
-      setSearchResult(result);
-      console.log(`Sorgulama sonucu: ${JSON.stringify(result)}`);
+      console.log(`Ürün kodu sorgulanıyor: ${id}`);
 
       // Gerçek API çağrısı
-      // const response = await axios.get(`https://your-nebim-api-url.com/inventory`, {
-      //   params: { code },
-      //   headers: { Authorization: `Bearer your-api-token` },
-      // });
-      // setSearchResult(response.data);
-      // console.log(`API sorgulama sonucu: ${JSON.stringify(response.data)}`);
+      const response = await axios.get(`http://localhost:8000/api/products/search`, {
+        params: { id },
+      });
+
+      if (response.data.length === 0) {
+        Alert.alert('Hata', 'Ürün kodu hatalıdır');
+        console.log(`Ürün kodu hatalı: ${id}`);
+      } else {
+        setSearchResult(response.data);
+        console.log(`API sorgulama sonucu: ${JSON.stringify(response.data)}`);
+        Alert.alert('Başarılı', 'Ürün bulundu');
+        console.log(`Ürün bulundu: ${id}`);
+      }
     } catch (error) {
       console.error('Envanter sorgulama hatası:', error);
       Alert.alert('Hata', 'Envanter sorgulama hatası');
@@ -98,12 +83,11 @@ const InventoryScreen = () => {
     <Card style={styles.card}>
       <Card.Content>
         <Title>{item.name}</Title>
-        <Paragraph>Adet: {item.quantity}</Paragraph>
-        <FlatList
-          data={item.stores}
-          keyExtractor={(store) => store}
-          renderItem={({ item: store }) => <Paragraph>Şube: {store}</Paragraph>}
-        />
+        <Paragraph>Kategori: {item.category}</Paragraph>
+        <Paragraph>Fiyat: {item.price} TL</Paragraph>
+        <Paragraph>İndirimli Fiyat: {item.discountPrice} TL</Paragraph>
+        <Paragraph>Bedenler: {item.size.join(', ')}</Paragraph>
+        <Paragraph>Renkler: {item.color.join(', ')}</Paragraph>
       </Card.Content>
     </Card>
   );
@@ -141,7 +125,7 @@ const InventoryScreen = () => {
         {loading && <ActivityIndicator size="large" color="#0000ff" />}
         <FlatList
           data={searchResult}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item) => item._id.toString()}
           renderItem={renderItem}
         />
       </View>
