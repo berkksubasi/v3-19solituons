@@ -6,18 +6,11 @@ import { RNCamera } from 'react-native-camera';
 import { DeviceEventEmitter } from 'react-native';
 
 interface PriceItem {
-  id: number;
+  id: string;
   name: string;
   oldPrice: string;
   newPrice: string;
 }
-
-const dummyPriceData: PriceItem[] = [
-  { id: 1, name: 'Ürün 1', oldPrice: '15 TL', newPrice: '10 TL' },
-  { id: 2, name: 'Ürün 2', oldPrice: '10 TL', newPrice: '5 TL' },
-  { id: 3, name: 'Ürün 3', oldPrice: '12 TL', newPrice: '8 TL' },
-  { id: 4, name: 'Ürün 4', oldPrice: '25 TL', newPrice: '20 TL' },
-];
 
 const PriceScreen = () => {
   const [prices, setPrices] = useState<PriceItem[]>([]);
@@ -53,27 +46,20 @@ const PriceScreen = () => {
       setLoading(true);
       console.log(`Ürün kodu sorgulanıyor: ${code}`);
 
-      // Dummy data kullanarak sonuçları güncelle
-      const result = dummyPriceData.filter(item => item.name === code);
+      // Gerçek API çağrısı
+      const response = await axios.get(`http://localhost:8000/api/products/search`, {
+        params: { code },
+      });
+      setPrices(response.data);
+      console.log(`API sorgulama sonucu: ${JSON.stringify(response.data)}`);
 
-      if (result.length === 0) {
+      if (response.data.length === 0) {
         Alert.alert('Hata', 'Ürün kodu hatalıdır');
         console.log(`Ürün kodu hatalı: ${code}`);
       } else {
         Alert.alert('Başarılı', 'Ürün bulundu');
         console.log(`Ürün bulundu: ${code}`);
-        setPrices(result);
       }
-
-      console.log(`Sorgulama sonucu: ${JSON.stringify(result)}`);
-
-      // Gerçek API çağrısı
-      // const response = await axios.get(`https://your-nebim-api-url.com/price`, {
-      //   params: { code },
-      //   headers: { Authorization: `Bearer your-api-token` },
-      // });
-      // setPrices(response.data);
-      // console.log(`API sorgulama sonucu: ${JSON.stringify(response.data)}`);
     } catch (error) {
       console.error('Fiyat sorgulama hatası:', error);
       Alert.alert('Hata', 'Fiyat sorgulama hatası');
@@ -145,6 +131,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 10,
+    paddingTop: 100,
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
@@ -166,7 +153,6 @@ const styles = StyleSheet.create({
   },
   card: {
     marginVertical: 8,
-
   },
   camera: {
     flex: 1,
