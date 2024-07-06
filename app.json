@@ -1,10 +1,45 @@
 {
   "expo": {
+    "name": "NebimAppExpo",
+    "slug": "nebimapp",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.observerdev.nebimappexpo",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "Uygulama fotoğrafları seçmek için galeriye erişim istiyor."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#000000"
+      },
+      "package": "com.observerdev.nebimappexpo"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "owner": "observerdev",
     "extra": {
       "eas": {
         "projectId": "4cd6d817-500d-4958-bb4d-0eab5437b821"
       }
     },
-    "owner": "observerdev"
+    "plugins": [
+  [
+    "expo-image-picker",
+    {
+      "photosPermission": "Uygulama fotoğrafları seçmek için galeriye erişim istiyor."
+    }
+  ]
+]
+
   }
 }
