@@ -8,11 +8,12 @@ import { DeviceEventEmitter } from 'react-native';
 interface InventoryItem {
   _id: string;
   name: string;
-  size: string[];
-  color: string[];
   price: number;
   discountPrice: number;
+  size: string[];
+  color: string[];
   category: string;
+  quantity: number;
 }
 
 const InventoryScreen = () => {
@@ -83,11 +84,12 @@ const InventoryScreen = () => {
     <Card style={styles.card}>
       <Card.Content>
         <Title>{item.name}</Title>
+        <Paragraph>Adet: {item.quantity}</Paragraph>
+        <Paragraph>Eski Fiyat: {item.price} TL</Paragraph>
+        <Paragraph>Yeni Fiyat: {item.discountPrice} TL</Paragraph>
+        <Paragraph>Beden: {item.size.join(', ')}</Paragraph>
+        <Paragraph>Renk: {item.color.join(', ')}</Paragraph>
         <Paragraph>Kategori: {item.category}</Paragraph>
-        <Paragraph>Fiyat: {item.price} TL</Paragraph>
-        <Paragraph>İndirimli Fiyat: {item.discountPrice} TL</Paragraph>
-        <Paragraph>Bedenler: {item.size.join(', ')}</Paragraph>
-        <Paragraph>Renkler: {item.color.join(', ')}</Paragraph>
       </Card.Content>
     </Card>
   );
