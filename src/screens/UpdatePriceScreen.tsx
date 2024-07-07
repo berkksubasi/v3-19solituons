@@ -1,23 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
 import { Provider as PaperProvider, Button, TextInput } from 'react-native-paper';
+import axios from 'axios';
 import { RNCamera } from 'react-native-camera';
 import { DeviceEventEmitter } from 'react-native';
 
-interface Product {
-  id: string;
-  name: string;
-  price: string;
-}
-
-const dummyProductData: Product[] = [
-  { id: '1', name: 'Ürün 1', price: '10 TL' },
-  { id: '2', name: 'Ürün 2', price: '20 TL' },
-  { id: '3', name: 'Ürün 3', price: '30 TL' },
-];
-
 const UpdatePriceScreen = () => {
-  const [productName, setProductId] = useState('');
+  const [productId, setProductId] = useState('');
   const [newPrice, setNewPrice] = useState('');
   const [scanning, setScanning] = useState<boolean>(false);
 
@@ -38,42 +27,28 @@ const UpdatePriceScreen = () => {
   }, []);
 
   const handleUpdatePrice = async () => {
-    if (productName && newPrice) {
-      // Dummy data güncelleme
-      const productIndex = dummyProductData.findIndex(product => product.name === productName);
-      if (productIndex !== -1) {
-        dummyProductData[productIndex].price = `${newPrice} TL`;
-        alert(`Ürün Kodu ${productName} olan ürünün fiyatı ${newPrice} TL olarak güncellendi`);
-        console.log(`Ürün Kodu ${productName} olan ürünün fiyatı ${newPrice} TL olarak güncellendi`);
+    if (productId && newPrice) {
+      try {
+        const response = await axios.post('http://localhost:8000/api/products/update-price', {
+          id: productId,
+          newPrice: parseFloat(newPrice),
+        });
 
-        // Gerçek API çağrısı
-        // try {
-        //   const response = await axios.post('https://your-nebim-api-url.com/update-price', {
-        //     productId,
-        //     newPrice,
-        //   }, {
-        //     headers: { Authorization: `Bearer your-api-token` },
-        //   });
-
-        //   if (response.status === 200) {
-        //     alert(`Ürün ID'si ${productId} olan ürünün fiyatı ${newPrice} TL olarak güncellendi`);
-        //     console.log(`API yanıtı: ${response.data}`);
-        //   } else {
-        //     alert('Fiyat güncellenemedi, lütfen tekrar deneyin');
-        //     console.log(`API hatası: ${response.status}`);
-        //   }
-        // } catch (error) {
-        //   console.error('Fiyat güncelleme hatası:', error);
-        //   alert('Fiyat güncelleme sırasında bir hata oluştu');
-        // }
-      } else {
-        alert('Ürün bulunamadı');
-        console.log('Ürün bulunamadı');
+        if (response.status === 200) {
+          Alert.alert(`Ürün ID'si ${productId} olan ürünün fiyatı ${newPrice} TL olarak güncellendi`);
+          console.log(`API yanıtı: ${response.data}`);
+        } else {
+          Alert.alert('Fiyat güncellenemedi, lütfen tekrar deneyin');
+          console.log(`API hatası: ${response.status}`);
+        }
+      } catch (error) {
+        console.error('Fiyat güncelleme hatası:', error);
+        Alert.alert('Fiyat güncelleme sırasında bir hata oluştu');
       }
       setProductId('');
       setNewPrice('');
     } else {
-      alert('Lütfen ürün ID ve yeni fiyatı girin');
+      Alert.alert('Lütfen ürün ID ve yeni fiyatı girin');
       console.log('Ürün ID veya yeni fiyat girilmedi');
     }
   };
@@ -89,7 +64,7 @@ const UpdatePriceScreen = () => {
       <View style={styles.container}>
         <TextInput
           label="Ürün ID"
-          value={productName}
+          value={productId}
           onChangeText={text => setProductId(text)}
           style={styles.input}
         />
@@ -131,7 +106,6 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     width: '100%',
   },
- 
   button: {
     marginVertical: 8,
     width: '80%',
