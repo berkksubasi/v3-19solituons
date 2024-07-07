@@ -1,31 +1,30 @@
 const express = require('express');
 const router = express.Router();
-const mongoose = require('mongoose');
 const Transfer = require('../models/Transfer');
 
-// Gelen transferleri al
+// Get incoming transfers
 router.get('/incoming', async (req, res) => {
   try {
-      const incomingTransfers = await Transfer.find({ status: 'pending', destination: 'depot' });
-      res.json(incomingTransfers);
+    const incomingTransfers = await Transfer.find({ status: 'pending', destination: 'depot' });
+    res.json(incomingTransfers);
   } catch (error) {
-      console.error('Error fetching incoming transfers:', error);
-      res.status(500).json({ message: 'Error fetching incoming transfers' });
+    console.error('Error fetching incoming transfers:', error);
+    res.status(500).json({ message: 'Error fetching incoming transfers' });
   }
 });
 
-// Giden transferleri al
+// Get outgoing transfers
 router.get('/outgoing', async (req, res) => {
-    try {
-      const outgoingTransfers = await Transfer.find({ status: 'pending', source: 'depot' });
-      res.json(outgoingTransfers);
+  try {
+    const outgoingTransfers = await Transfer.find({ status: 'pending', source: 'depot' });
+    res.json(outgoingTransfers);
   } catch (error) {
-      console.error('Error fetching outgoing transfers:', error);
-      res.status(500).json({ message: 'Error fetching outgoing transfers' });
+    console.error('Error fetching outgoing transfers:', error);
+    res.status(500).json({ message: 'Error fetching outgoing transfers' });
   }
 });
 
-// Transfer gönder
+// Send transfer
 router.post('/send', async (req, res) => {
   const { products, source, destination } = req.body;
   const transfer = new Transfer({
@@ -43,27 +42,27 @@ router.post('/send', async (req, res) => {
   }
 });
 
-// Gelen transferleri kabul et
+// Accept incoming transfer
 router.post('/accept', async (req, res) => {
   const { id } = req.body;
 
   try {
-      const transfer = await Transfer.findById(id);
-      if (!transfer) {
-          return res.status(404).json({ message: 'Transfer not found' });
-      }
+    const transfer = await Transfer.findById(id);
+    if (!transfer) {
+      return res.status(404).json({ message: 'Transfer not found' });
+    }
 
-      transfer.status = 'accepted';
-      await transfer.save();
+    transfer.status = 'accepted';
+    await transfer.save();
 
-      res.json({ message: 'Transfer accepted successfully', transfer });
+    res.json({ message: 'Transfer accepted successfully', transfer });
   } catch (error) {
-      console.error('Error accepting transfer:', error);
-      res.status(500).json({ message: 'Error accepting transfer' });
+    console.error('Error accepting transfer:', error);
+    res.status(500).json({ message: 'Error accepting transfer' });
   }
 });
 
-// Eksik ürünleri bildir
+// Report missing products
 router.post('/missing', async (req, res) => {
   const { products } = req.body;
   try {

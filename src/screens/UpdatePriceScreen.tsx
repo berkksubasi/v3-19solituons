@@ -35,10 +35,10 @@ const UpdatePriceScreen = () => {
         });
 
         if (response.status === 200) {
-          Alert.alert(`Ürün ID'si ${productId} olan ürünün fiyatı ${newPrice} TL olarak güncellendi`);
+          Alert.alert(`Ürün ID'si ${productId} olan ürünün yeni fiyatı ${newPrice} TL olarak güncellendi`);
           console.log(`API yanıtı: ${response.data}`);
         } else {
-          Alert.alert('Fiyat güncellenemedi, lütfen tekrar deneyin');
+          Alert.alert('Yeni fiyat güncellenemedi, lütfen tekrar deneyin');
           console.log(`API hatası: ${response.status}`);
         }
       } catch (error) {
@@ -76,7 +76,7 @@ const UpdatePriceScreen = () => {
           style={styles.input}
         />
         <Button mode="contained" style={styles.button} onPress={handleUpdatePrice}>
-          Fiyatı Güncelle
+          Yeni Fiyatı Güncelle
         </Button>
         <Button mode="contained" style={styles.button} onPress={() => setScanning(true)}>
           Barkod Tara

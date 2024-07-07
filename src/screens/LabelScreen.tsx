@@ -10,7 +10,7 @@ interface Product {
   name: string;
   price: number;
   discountPrice: number;
-  size: string[];
+  sizes: string[];
   color: string[];
   category: string;
 }
@@ -74,7 +74,7 @@ const LabelScreen: React.FC = () => {
 
   const handlePrintLabel = () => {
     if (product) {
-      alert(`Etiket yazdırılıyor: ${product.name}, Fiyat: ${product.price}, Kategori: ${product.category}, Bedenler: ${product.size?.join(', ')}`);
+      alert(`Etiket yazdırılıyor: ${product.name}, Fiyat: ${product.price} ₺, Kategori: ${product.category}, Bedenler: ${product.sizes?.join(', ')}`);
       console.log(`Etiket yazdırılıyor: ${JSON.stringify(product)}`);
     } else {
       alert('Lütfen bir ürün seçin');
@@ -110,9 +110,9 @@ const LabelScreen: React.FC = () => {
             <Card.Content>
               <Text>Ürün ID: {product._id}</Text>
               <Text>Ürün Adı: {product.name}</Text>
-              <Text>Fiyat: {product.price}</Text>
+              <Text>Fiyat: {product.price} ₺</Text>
               <Text>Kategori: {product.category}</Text>
-              <Text>Bedenler: {product.size?.join(', ')}</Text>
+              <Text>Bedenler: {product.sizes?.join(', ')}</Text>
             </Card.Content>
             <Card.Actions>
               <Button mode="contained" onPress={handlePreviewLabel}>Önizleme</Button>
@@ -125,9 +125,9 @@ const LabelScreen: React.FC = () => {
             <Card.Title title="Etiket Önizleme" />
             <Card.Content>
               <Text>Ürün: {product.name}</Text>
-              <Text>Fiyat: {product.price}</Text>
+              <Text>Fiyat: {product.price} ₺</Text>
               <Text>Kategori: {product.category}</Text>
-              <Text>Bedenler: {product.size?.join(', ')}</Text>
+              <Text>Bedenler: {product.sizes?.join(', ')}</Text>
               <Text>Ürün ID: {product._id}</Text>
             </Card.Content>
           </Card>

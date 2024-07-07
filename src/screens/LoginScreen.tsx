@@ -71,7 +71,6 @@ const LoginScreen: React.FC = () => {
           style={styles.input}
         />
         <Button title="Giriş Yap" onPress={handleLogin} color="#800080" />
-        <Button title="Kullanıcı Oluştur" onPress={createUser} color="#008080" />
       </View>
     </ExpoLinearGradient>
   );
