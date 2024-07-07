@@ -2,11 +2,32 @@ import React from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { Button, Provider as PaperProvider } from 'react-native-paper';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+
+type RootStackParamList = {
+  Home: { role: 'admin' | 'store' | 'warehouse' };
+  InventoryScreen: undefined;
+  PriceScreen: undefined;
+  UpdatePriceScreen: undefined;
+  TransferScreen: undefined;
+  LabelScreen: undefined;
+  StockScreen: undefined;
+  WarehouseScreen: undefined;
+  SalesScreen: undefined;
+  PurchasingScreen: undefined;
+  FinanceScreen: undefined;
+  ProductionScreen: undefined;
+  UserManagementScreen: undefined;
+  ReportsScreen: undefined;
+};
+
+type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
+type HomeScreenRouteProp = RouteProp<RootStackParamList, 'Home'>;
 
 const HomeScreen: React.FC = () => {
-  const navigation = useNavigation();
-  const route = useRoute();
+  const navigation = useNavigation<HomeScreenNavigationProp>();
+  const route = useRoute<HomeScreenRouteProp>();
   const { role } = route.params;
 
   const renderButtons = () => {
@@ -63,6 +84,9 @@ const HomeScreen: React.FC = () => {
             </Button>
             <Button mode="contained" style={styles.button} onPress={() => navigation.navigate('PriceScreen')}>
               Fiyat Sorgu
+            </Button>
+            <Button mode="contained" style={styles.button} onPress={() => navigation.navigate('UpdatePriceScreen')}>
+              Fiyat Güncelle
             </Button>
             <Button mode="contained" style={styles.button} onPress={() => navigation.navigate('TransferScreen')}>
               Transferler
@@ -127,13 +151,10 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingTop: 50,
     paddingBottom: 40,
-
-
   },
   buttonContainer: {
     width: 380,
     paddingVertical: 20,
-
   },
   button: {
     marginVertical: 10,

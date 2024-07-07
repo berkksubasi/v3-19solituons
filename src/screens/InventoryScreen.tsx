@@ -61,7 +61,6 @@ const InventoryScreen = () => {
       } else {
         setSearchResult(response.data);
         console.log(`API sorgulama sonucu: ${JSON.stringify(response.data)}`);
-        Alert.alert('Başarılı', 'Ürün bulundu');
         console.log(`Ürün bulundu: ${id}`);
       }
     } catch (error) {

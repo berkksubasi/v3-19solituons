@@ -5,50 +5,38 @@ import Svg, { Text, Defs, LinearGradient, Stop } from 'react-native-svg';
 import { LinearGradient as ExpoLinearGradient } from 'expo-linear-gradient';
 import axios from 'axios';
 
+type RootStackParamList = {
+  Home: { role: 'admin' | 'store' | 'warehouse' };
+};
+
 const LoginScreen: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
 
-  const handleLogin = () => {
-    // Dummy login implementation
-    let role = '';
-    if (username === 'admin' && password === 'admin123') {
-      role = 'admin';
-    } else if (username === 'store1' && password === 'store123') {
-      role = 'store';
-    } else if (username === 'store2' && password === 'store123') {
-      role = 'store';
-    } else if (username === 'warehouse1' && password === 'warehouse123') {
-      role = 'warehouse';
-    } else if (username === 'warehouse2' && password === 'warehouse123') {
-      role = 'warehouse';
-    } else {
-      Alert.alert('Hata', 'Geçersiz kullanıcı adı veya şifre');
-      return;
-    }
-    navigation.navigate('Home', { role });
-  };
-
-  const createUser = async () => {
+  const handleLogin = async () => {
     try {
-      const response = await axios.post('http://localhost:8000/api/users', {
-        name: username,
-        email: `${username}@example.com`, 
-        password,
-      });
-      console.log('User created:', response.data);
-      Alert.alert('Başarılı', 'Kullanıcı başarıyla oluşturuldu');
-    } catch (err) {
-      console.error('Error creating user:', err.message);
-      Alert.alert('Hata', 'Kullanıcı oluşturulurken bir hata oluştu');
+      const response = await axios.post('http://localhost:8000/api/auth/login', { username, password });
+      const { user } = response.data;
+      if (user && user.role) {
+        navigation.navigate('Home', { role: user.role });
+      } else {
+        Alert.alert('Hata', 'Geçersiz kullanıcı adı veya şifre');
+      }
+    } catch (err: any) {
+      if (axios.isAxiosError(err)) {
+        console.error('Login error:', err.message);
+      } else {
+        console.error('Unexpected error:', err);
+      }
+      Alert.alert('Hata', 'Geçersiz kullanıcı adı veya şifre');
     }
   };
 
   return (
     <ExpoLinearGradient colors={['#4c669f', '#3b5998', '#192f6a']} style={styles.container}>
       <View style={styles.innerContainer}>
-        <Svg width="300" height="100" viewBox="0 0 300 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <Svg width="300" height="100" viewBox="0 0 300 100" fill="none">
           <Defs>
             <LinearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
               <Stop offset="0%" stopColor="rgb(0,0,255)" stopOpacity="1" />
