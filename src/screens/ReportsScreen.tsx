@@ -1,4 +1,3 @@
-// src/screens/ReportsScreen.tsx
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Alert, ScrollView } from 'react-native';
 import { Provider as PaperProvider, Button, Card, List, Text, RadioButton } from 'react-native-paper';

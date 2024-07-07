@@ -93,7 +93,6 @@ const UpdatePriceScreen = () => {
   );
 };
 
-// Stil dosyaları
 const styles = StyleSheet.create({
   container: {
     flex: 1,

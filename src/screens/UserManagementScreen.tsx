@@ -1,4 +1,3 @@
-// src/screens/UserManagementScreen.tsx
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Alert, ScrollView } from 'react-native';
 import { Provider as PaperProvider, Button, TextInput, Card, List, Dialog, Portal } from 'react-native-paper';

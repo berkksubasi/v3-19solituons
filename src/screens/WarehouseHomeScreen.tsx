@@ -1,5 +1,3 @@
-// src/screens/WarehouseHomeScreen.tsx
-
 import React from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import { Provider as PaperProvider } from 'react-native-paper';

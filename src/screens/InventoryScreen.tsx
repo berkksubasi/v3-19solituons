@@ -50,7 +50,7 @@ const InventoryScreen = () => {
       setLoading(true);
       console.log(`Ürün kodu sorgulanıyor: ${id}`);
 
-      // Gerçek API çağrısı
+      // Search API
       const response = await axios.get(`http://localhost:8000/api/products/search`, {
         params: { id },
       });

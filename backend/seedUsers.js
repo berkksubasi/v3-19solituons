@@ -14,7 +14,7 @@ const seedUsers = async () => {
     { username: 'Depo', password: '123depo', role: 'warehouse' },
   ];
 
-  await User.deleteMany({}); // Önceki kullanıcıları sil
+  await User.deleteMany({}); // Delete all existing users
 
   for (let userData of users) {
     const { username, password, role } = userData;

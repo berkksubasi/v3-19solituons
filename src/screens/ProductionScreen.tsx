@@ -1,4 +1,3 @@
-// src/screens/ProductionScreen.tsx
 import React, { useState } from 'react';
 import { View, StyleSheet, Alert, Text, ScrollView } from 'react-native';
 import { Provider as PaperProvider, Button, Card, List } from 'react-native-paper';

@@ -3,7 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 
-// Giriş yap
+// Login
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
 

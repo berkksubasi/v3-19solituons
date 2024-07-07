@@ -1,4 +1,3 @@
-// src/screens/StockScreen.tsx
 import React, { useState } from 'react';
 import { View, StyleSheet, Alert, Text } from 'react-native';
 import { Provider as PaperProvider, Button, TextInput, Card, List } from 'react-native-paper';
