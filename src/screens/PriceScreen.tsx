@@ -9,7 +9,7 @@ interface PriceItem {
   _id: string;
   name: string;
   price: number;
-  discountPrice: number;
+  newPrice: number;  
 }
 
 const PriceScreen = () => {
@@ -46,7 +46,7 @@ const PriceScreen = () => {
       setLoading(true);
       console.log(`Ürün kodu sorgulanıyor: ${id}`);
 
-      // Real API call
+      // Gerçek API çağrısı
       const response = await axios.get(`http://localhost:8000/api/products/search`, {
         params: { id },
       });
@@ -81,7 +81,7 @@ const PriceScreen = () => {
       <Card.Content>
         <Title>{item.name}</Title>
         <Paragraph>Eski Fiyat: {item.price} TL</Paragraph>
-        <Paragraph>Yeni Fiyat: {item.discountPrice} TL</Paragraph>
+        <Paragraph>Yeni Fiyat: {item.newPrice} TL</Paragraph>
       </Card.Content>
     </Card>
   );

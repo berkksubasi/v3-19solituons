@@ -44,7 +44,7 @@ const LabelScreen: React.FC = () => {
       const response = await axios.get(`http://localhost:8000/api/products/search`, {
         params: { id: code },
       });
-      setProduct(response.data[0]); // Assuming the API returns an array
+      setProduct(response.data[0]); 
       console.log(`API yanıtı: ${JSON.stringify(response.data[0])}`);
     } catch (error) {
       console.error('Ürün sorgulama hatası:', error);

@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Alert, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { Provider as PaperProvider, Button, TextInput, Card, List, Dialog, Portal, Checkbox, IconButton } from 'react-native-paper';
 import { RNCamera } from 'react-native-camera';
+import axios from 'axios';
 
 interface Product {
   id: string;
@@ -10,30 +11,22 @@ interface Product {
   sizes: string[];
 }
 
-const dummyProductData: Product[] = [
-  { id: '1', name: 'Pantolon', quantity: 10, sizes: ['S', 'M', 'L', 'XL'] },
-  { id: '2', name: 'Tunik', quantity: 5, sizes: ['S', 'M', 'L'] },
-  { id: '3', name: 'Gömlek', quantity: 8, sizes: ['M', 'L', 'XL'] },
-];
+interface Transfer {
+  _id: string;  
+  products: Product[];
+  source: string;
+  destination: string;
+  status: string;
+}
 
-const dummyIncomingTransfers: Product[][] = [
-  [
-    { id: '1-1', name: 'Pantolon', quantity: 10, sizes: ['S', 'M', 'L', 'XL'] },
-    { id: '2-1', name: 'Tunik', quantity: 5, sizes: ['S', 'M', 'L'] },
-  ],
-  [
-    { id: '3-1', name: 'Gömlek', quantity: 8, sizes: ['M', 'L', 'XL'] },
-    { id: '1-2', name: 'Pantolon', quantity: 10, sizes: ['S', 'M', 'L', 'XL'] },
-  ],
-];
 
 const TransferScreen: React.FC = () => {
   const [scanning, setScanning] = useState<boolean>(false);
   const [barcodeData, setBarcodeData] = useState<string>('');
   const [productList, setProductList] = useState<Product[]>([]);
-  const [incomingTransfers, setIncomingTransfers] = useState<Product[][]>(dummyIncomingTransfers);
-  const [outgoingTransfers, setOutgoingTransfers] = useState<Product[][]>([]);
-  const [acceptedTransfers, setAcceptedTransfers] = useState<Product[][]>([]);
+  const [incomingTransfers, setIncomingTransfers] = useState<Transfer[]>([]);
+  const [outgoingTransfers, setOutgoingTransfers] = useState<Transfer[]>([]);
+  const [acceptedTransfers, setAcceptedTransfers] = useState<Transfer[]>([]);
   const [missingProducts, setMissingProducts] = useState<Product[]>([]);
   const [transferType, setTransferType] = useState<string>('outgoing');
   const [dialogVisible, setDialogVisible] = useState<boolean>(false);
@@ -42,6 +35,32 @@ const TransferScreen: React.FC = () => {
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [checkedProducts, setCheckedProducts] = useState<{ [key: string]: boolean }>({});
 
+  useEffect(() => {
+    fetchIncomingTransfers();
+    fetchOutgoingTransfers();
+  }, []);
+
+  const fetchIncomingTransfers = async () => {
+    try {
+      const response = await axios.get('http://localhost:8000/api/transfers/incoming');
+      setIncomingTransfers(response.data);
+    } catch (error) {
+      console.error('Gelen transferleri alırken hata:', error);
+      Alert.alert('Hata', 'Gelen transferleri alırken bir hata oluştu');
+    }
+  };
+  
+  const fetchOutgoingTransfers = async () => {
+    try {
+      const response = await axios.get('http://localhost:8000/api/transfers/outgoing');
+      setOutgoingTransfers(response.data);
+    } catch (error) {
+      console.error('Giden transferleri alırken hata:', error);
+      Alert.alert('Hata', 'Giden transferleri alırken bir hata oluştu');
+    }
+  };
+  
+
   const handleBarCodeScanned = ({ data }: { data: string }) => {
     console.log(`Barkod ile taranan ürün kodu: ${data}`);
     setScanning(false);
@@ -49,14 +68,20 @@ const TransferScreen: React.FC = () => {
     addProductToList(data);
   };
 
-  const addProductToList = (code: string) => {
-    const product = dummyProductData.find(item => item.id === code || item.name.toLowerCase() === code.toLowerCase());
-    if (product) {
-      setProductList(prevList => [...prevList, product]);
-      console.log(`Ürün listeye eklendi: ${JSON.stringify(product)}`);
-    } else {
-      Alert.alert('Hata', 'Ürün bulunamadı');
-      console.log('Ürün bulunamadı');
+  const addProductToList = async (code: string) => {
+    try {
+      const response = await axios.get(`http://localhost:8000/api/products/search`, { params: { id: code } });
+      const product: Product = response.data[0];
+      if (product) {
+        setProductList(prevList => [...prevList, product]);
+        console.log(`Ürün listeye eklendi: ${JSON.stringify(product)}`);
+      } else {
+        Alert.alert('Hata', 'Ürün bulunamadı');
+        console.log('Ürün bulunamadı');
+      }
+    } catch (error) {
+      console.error('Ürün ararken hata:', error);
+      Alert.alert('Hata', 'Ürün ararken bir hata oluştu');
     }
   };
 
@@ -64,55 +89,54 @@ const TransferScreen: React.FC = () => {
     setScanning(true);
   };
 
-  const handleSendTransfer = () => {
+  const handleSendTransfer = async () => {
     if (productList.length > 0) {
-      setOutgoingTransfers(prevTransfers => [...prevTransfers, productList]);
-      setProductList([]);
-      Alert.alert('Başarılı', 'Transfer Gönderildi');
-      console.log('Transfer gönderildi:', productList);
+      try {
+        const response = await axios.post('http://localhost:8000/api/transfers/send', { products: productList });
+        const newTransfer: Transfer = response.data;
+        setOutgoingTransfers(prevTransfers => [...prevTransfers, newTransfer]);
+        setProductList([]);
+        Alert.alert('Başarılı', 'Transfer Gönderildi');
+        console.log('Transfer gönderildi:', newTransfer);
+      } catch (error) {
+        console.error('Transfer gönderirken hata:', error);
+        Alert.alert('Hata', 'Transfer gönderirken bir hata oluştu');
+      }
     } else {
       Alert.alert('Hata', 'Lütfen en az bir ürün ekleyin');
       console.log('Ürün eklenmedi');
     }
   };
 
-  const handleAcceptTransfer = (index: number) => {
+  const handleAcceptTransfer = async (index: number) => {
     const transfer = incomingTransfers[index];
-    const missing = transfer.filter(sentProduct => {
-      const receivedProduct = missingProducts.find(item => item.id === sentProduct.id);
-      return receivedProduct;
-    });
-
-    if (missing.length > 0) {
-      const acceptedTransfer = transfer.map(product => {
-        const missingProduct = missingProducts.find(missing => missing.id === product.id);
-        if (missingProduct) {
-          return {
-            ...product,
-            quantity: product.quantity - missingProduct.quantity
-          };
-        }
-        return product;
-      });
-
-      setAcceptedTransfers(prevTransfers => [...prevTransfers, acceptedTransfer]);
+  
+    try {
+      await axios.post('http://localhost:8000/api/transfers/accept', { id: transfer._id });
+      
+      setAcceptedTransfers(prevTransfers => [...prevTransfers, { ...transfer, status: 'accepted' }]);
       setIncomingTransfers(prevTransfers => prevTransfers.filter((_, i) => i !== index));
-      Alert.alert('Transfer Kabul Edildi', `Kabul Edilen Ürünler: ${acceptedTransfer.map(p => p.name).join(', ')}`);
-      console.log('Transfer kabul edildi:', acceptedTransfer);
-    } else {
-      setAcceptedTransfers(prevTransfers => [...prevTransfers, transfer]);
-      setIncomingTransfers(prevTransfers => prevTransfers.filter((_, i) => i !== index));
-      Alert.alert('Transfer Kabul Edildi', `Kabul Edilen Ürünler: ${transfer.map(p => p.name).join(', ')}`);
+      Alert.alert('Transfer Kabul Edildi', `Kabul Edilen Ürünler: ${transfer.products.map(p => p.name).join(', ')}`);
       console.log('Transfer kabul edildi:', transfer);
+    } catch (error) {
+      console.error('Transfer kabul ederken hata:', error);
+      Alert.alert('Hata', 'Transfer kabul ederken bir hata oluştu');
     }
   };
+  
 
-  const handleReportMissingProducts = () => {
-    const missing = incomingTransfers.flat().filter(product => checkedProducts[product.id]);
+  const handleReportMissingProducts = async () => {
+    const missing = incomingTransfers.flatMap(transfer => transfer.products.filter(product => checkedProducts[product.id]));
     if (missing.length > 0) {
-      setMissingProducts(missing);
-      Alert.alert('Eksik Ürünler Bildirildi', `Eksik Ürünler: ${missing.map(p => p.name).join(', ')}`);
-      console.log('Eksik ürünler bildirildi:', missing);
+      try {
+        await axios.post('http://localhost:8000/api/transfers/missing', { products: missing });
+        setMissingProducts(missing);
+        Alert.alert('Eksik Ürünler Bildirildi', `Eksik Ürünler: ${missing.map(p => p.name).join(', ')}`);
+        console.log('Eksik ürünler bildirildi:', missing);
+      } catch (error) {
+        console.error('Eksik ürünleri bildirirken hata:', error);
+        Alert.alert('Hata', 'Eksik ürünleri bildirirken bir hata oluştu');
+      }
     } else {
       Alert.alert('Hata', 'Lütfen eksik ürünleri seçin');
       console.log('Eksik ürün seçilmedi');
@@ -262,7 +286,7 @@ const TransferScreen: React.FC = () => {
                       <Card key={index} style={styles.transferCard}>
                         <Card.Title title={`Transfer ${index + 1}`} />
                         <Card.Content>
-                          {transfer.map((product, idx) => (
+                          {transfer.products.map((product, idx) => (
                             <List.Item
                               key={idx}
                               title={product.name}
@@ -291,7 +315,7 @@ const TransferScreen: React.FC = () => {
                     <Card key={index} style={styles.transferCard}>
                       <Card.Title title={`Transfer ${index + 1}`} />
                       <Card.Content>
-                        {transfer.map((product, idx) => (
+                        {transfer.products.map((product, idx) => (
                           <View key={idx} style={styles.checkboxContainer}>
                             <Checkbox
                               status={checkedProducts[product.id] ? 'checked' : 'unchecked'}
@@ -307,7 +331,7 @@ const TransferScreen: React.FC = () => {
                       <Card.Actions>
                         <Button mode="contained" onPress={() => handleAcceptTransfer(index)}>Transferi Kabul Et</Button>
                         <Button mode="outlined" onPress={() => {
-                          const checkedProduct = transfer.find(p => checkedProducts[p.id]);
+                          const checkedProduct = transfer.products.find(p => checkedProducts[p.id]);
                           if (checkedProduct) {
                             showDialog(checkedProduct);
                           } else {
@@ -331,7 +355,7 @@ const TransferScreen: React.FC = () => {
                   <Card key={index} style={styles.transferCard}>
                     <Card.Title title={`Transfer ${index + 1}`} />
                     <Card.Content>
-                      {transfer.map((product, idx) => (
+                      {transfer.products.map((product, idx) => (
                         <List.Item
                           key={idx}
                           title={product.name}
@@ -373,12 +397,14 @@ const TransferScreen: React.FC = () => {
   );
 };
 
-// Stil dosyaları
 const styles = StyleSheet.create({
   scrollViewContainer: {
     flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingTop: 100,
+    paddingBottom: 40,
+    backgroundColor: '#fff',
   },
   container: {
     flex: 1,

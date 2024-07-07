@@ -9,7 +9,7 @@ interface InventoryItem {
   _id: string;
   name: string;
   price: number;
-  discountPrice: number;
+  newPrice: number;
   size: string[];
   color: string[];
   category: string;
@@ -85,8 +85,8 @@ const InventoryScreen = () => {
       <Card.Content>
         <Title>{item.name}</Title>
         <Paragraph>Adet: {item.quantity}</Paragraph>
-        <Paragraph>Eski Fiyat: {item.price} TL</Paragraph>
-        <Paragraph>Yeni Fiyat: {item.discountPrice} TL</Paragraph>
+        <Paragraph>Eski Fiyat: {item.price} ₺</Paragraph>
+        <Paragraph>Yeni Fiyat: {item.newPrice} ₺</Paragraph>
         <Paragraph>Beden: {item.size.join(', ')}</Paragraph>
         <Paragraph>Renk: {item.color.join(', ')}</Paragraph>
         <Paragraph>Kategori: {item.category}</Paragraph>

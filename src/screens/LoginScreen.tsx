@@ -34,7 +34,7 @@ const LoginScreen: React.FC = () => {
     try {
       const response = await axios.post('http://localhost:8000/api/users', {
         name: username,
-        email: `${username}@example.com`, // Email'i kullanıcı adıyla türetiyoruz
+        email: `${username}@example.com`, 
         password,
       });
       console.log('User created:', response.data);
