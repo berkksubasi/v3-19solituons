@@ -6,18 +6,14 @@ import { DeviceEventEmitter } from 'react-native';
 import axios from 'axios';
 
 interface Product {
-  id: string;
+  _id: string;
   name: string;
-  price: string;
-  sizes: string[];
+  price: number;
+  discountPrice: number;
+  size: string[];
+  color: string[];
   category: string;
 }
-
-const dummyProductData: Product[] = [
-  { id: '1', name: 'Ürün 1', price: '100 TL', sizes: ['S', 'M', 'L', 'XL'], category: 'Pantolon' },
-  { id: '2', name: 'Ürün 2', price: '150 TL', sizes: ['S', 'M', 'L', 'XL', 'XXL'], category: 'Tunik' },
-  { id: '3', name: 'Ürün 3', price: '200 TL', sizes: ['S', 'M', 'L', 'XL'], category: 'Gömlek' },
-];
 
 const LabelScreen: React.FC = () => {
   const [scanning, setScanning] = useState<boolean>(false);
@@ -44,27 +40,15 @@ const LabelScreen: React.FC = () => {
 
   const searchProduct = async (code: string) => {
     console.log(`Ürün kodu sorgulanıyor: ${code}`);
-
-    // Dummy data kullanarak sonuçları güncelle
-    const result = dummyProductData.find(item => item.id === code || item.name.toLowerCase() === code.toLowerCase());
-    if (result) {
-      setProduct(result);
-      console.log(`Dummy veri bulundu: ${JSON.stringify(result)}`);
-    } else {
-      // Gerçek API çağrısı
-      /*
-      try {
-        const response = await axios.get(`https://your-nebim-api-url.com/product`, {
-          params: { code },
-          headers: { Authorization: `Bearer your-api-token` },
-        });
-        setProduct(response.data);
-        console.log(`API yanıtı: ${JSON.stringify(response.data)}`);
-      } catch (error) {
-        console.error('Ürün sorgulama hatası:', error);
-        Alert.alert('Hata', 'Ürün sorgulama hatası');
-      }
-      */
+    try {
+      const response = await axios.get(`http://localhost:8000/api/products/search`, {
+        params: { id: code },
+      });
+      setProduct(response.data[0]); // Assuming the API returns an array
+      console.log(`API yanıtı: ${JSON.stringify(response.data[0])}`);
+    } catch (error) {
+      console.error('Ürün sorgulama hatası:', error);
+      Alert.alert('Hata', 'Ürün sorgulama hatası');
     }
   };
 
@@ -90,7 +74,7 @@ const LabelScreen: React.FC = () => {
 
   const handlePrintLabel = () => {
     if (product) {
-      alert(`Etiket yazdırılıyor: ${product.name}, Fiyat: ${product.price}, Kategori: ${product.category}, Bedenler: ${product.sizes.join(', ')}`);
+      alert(`Etiket yazdırılıyor: ${product.name}, Fiyat: ${product.price}, Kategori: ${product.category}, Bedenler: ${product.size?.join(', ')}`);
       console.log(`Etiket yazdırılıyor: ${JSON.stringify(product)}`);
     } else {
       alert('Lütfen bir ürün seçin');
@@ -124,11 +108,11 @@ const LabelScreen: React.FC = () => {
           <Card style={styles.productCard}>
             <Card.Title title="Ürün Bilgisi" />
             <Card.Content>
-              <Text>Ürün ID: {product.id}</Text>
+              <Text>Ürün ID: {product._id}</Text>
               <Text>Ürün Adı: {product.name}</Text>
               <Text>Fiyat: {product.price}</Text>
               <Text>Kategori: {product.category}</Text>
-              <Text>Bedenler: {product.sizes.join(', ')}</Text>
+              <Text>Bedenler: {product.size?.join(', ')}</Text>
             </Card.Content>
             <Card.Actions>
               <Button mode="contained" onPress={handlePreviewLabel}>Önizleme</Button>
@@ -143,7 +127,8 @@ const LabelScreen: React.FC = () => {
               <Text>Ürün: {product.name}</Text>
               <Text>Fiyat: {product.price}</Text>
               <Text>Kategori: {product.category}</Text>
-              <Text>Bedenler: {product.sizes.join(', ')}</Text>
+              <Text>Bedenler: {product.size?.join(', ')}</Text>
+              <Text>Ürün ID: {product._id}</Text>
             </Card.Content>
           </Card>
         )}
