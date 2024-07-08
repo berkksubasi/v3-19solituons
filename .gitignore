@@ -124,3 +124,5 @@ android/
 .temp/
 
 node_modules/
+
+backend/seedUsers.js
